@@ -1,0 +1,271 @@
+
+
+/* 包含头文件 ----------------------------------------------------------------*/
+#include "bsp/key/bsp_key.h"
+#include "bsp/LCD/bsp_LCD.h"
+
+
+
+/**
+  * 函数功能: 简单粗暴的延时函数
+  * 输入参数: time；延时时间设置
+  * 返 回 值: 无
+  * 说    明：按键在按下与弹开过程存在抖动，一般需要软件消抖，软件消抖最简单方法
+  *           就是加延时。
+  */
+void KEY_ScanDelay(void)
+{  
+  uint32_t i,j;
+  for(i=0;i<100;++i)
+    for(j=0;j<1000;++j){ }
+}
+/**
+  * 函数功能: 配置KEY1作为中断引脚并使能中断
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：我们配置KEY1为上升沿中断，查看开发板原理图可知在KEY1在没被按下时PA0为
+  *           低电平(下拉电阻作用结果)，所以当我们按下按键时就有一个从低电平变为高
+  *           电平过程，stm32f103芯片可以把这过程检测出来，当我们配置相关资源后就可
+  *           以让stm32把检测到这电平变化消息告诉给我们，从而我们知道了我们的动作
+  *           效果，进而进一步处理任务。
+  */
+void KEY1_EXIT_Config(void)
+{
+  /* 定义IO硬件初始化结构体变量 */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* 定义外部中断线初始化结构体变量 */
+  EXTI_InitTypeDef EXTI_InitStructure;
+  /* 定义嵌套向量中断控制器初始化结构体变量 */
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* 为启用IO引脚中断功能需要使能复用功能时钟 */
+  KEY1_RCC_CLOCKCMD(KEY1_RCC_CLOCKGPIO | KEY1_RCC_CLOCKAFIO,ENABLE);
+  
+  /* 设定KEY1对应引脚IO编号 */
+  GPIO_InitStructure.GPIO_Pin = KEY1_GPIO_PIN;  
+  /* 设定KEY1对应引脚IO最大操作速度 ：GPIO_Speed_50MHz */
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
+  /* 设定KEY1对应引脚IO为浮空输入模式 */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;  
+  /* 初始化KEY1对应引脚IO */
+  GPIO_Init(KEY1_GPIO, &GPIO_InitStructure);
+
+  /* 选择PA0作为中断输入源 */
+  GPIO_EXTILineConfig(KEY1_GPIO_PORTSOURCE,KEY1_GPIO_PINSOURCE);
+  
+  /* KEY1对应的断线 */
+  EXTI_InitStructure.EXTI_Line=KEY1_EXITLINE;
+  /* 外部中断模式 */
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
+  /* 上升沿触发方式 */
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  /* 使能中断 */
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  /* 根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存器 */
+  EXTI_Init(&EXTI_InitStructure);
+  
+  /* 选择中断优先级配置组为4个抢占式优先级和4个子优先级，可以参考misc.h文件了解相关设置 */
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+  
+  /* 使能KEY1所在的外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannel = KEY1_IRQCHANNEL;
+  /* 设置抢占式优先级为2 */
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02; 
+  /* 设置子优先级为3 */
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
+  /* 使能外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
+  /* 初始化配置嵌套向量中断控制器 */
+  NVIC_Init(&NVIC_InitStructure); 
+}
+
+/**
+  * 函数功能: 配置KEY2作为中断引脚并使能中断
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：我们配置KEY2为下降沿中断，查看开发板原理图可知在KEY2在没被按下时PC0为
+  *           高电平(上拉电阻作用结果)，所以当我们按下按键时就有一个从高电平变为低
+  *           电平过程，stm32f103芯片可以把这过程检测出来，当我们配置相关资源后就可
+  *           以让stm32把检测到这电平变化消息告诉给我们，从而我们知道了我们的动作
+  *           效果，进而进一步处理任务。
+  */
+void KEY2_EXIT_Config(void)
+{
+  /* 定义IO硬件初始化结构体变量 */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* 定义外部中断线初始化结构体变量 */
+  EXTI_InitTypeDef EXTI_InitStructure;
+  /* 定义嵌套向量中断控制器初始化结构体变量 */
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* 为启用IO引脚中断功能需要使能复用功能时钟 */
+  KEY2_RCC_CLOCKCMD(KEY2_RCC_CLOCKGPIO | KEY2_RCC_CLOCKAFIO,ENABLE);
+  
+  /* 设定KEY2对应引脚IO编号 */
+  GPIO_InitStructure.GPIO_Pin = KEY2_GPIO_PIN;  
+  /* 设定KEY2对应引脚IO最大操作速度 ：GPIO_Speed_50MHz */
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
+  /* 设定KEY2对应引脚IO为浮空输入模式 */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;  
+  /* 初始化KEY2对应引脚IO */
+  GPIO_Init(KEY2_GPIO, &GPIO_InitStructure);
+
+  /* 选择KEY2作为中断输入源 */
+  GPIO_EXTILineConfig(KEY2_GPIO_PORTSOURCE,KEY2_GPIO_PINSOURCE);
+  
+  /* KEY2对应的中断线 */
+  EXTI_InitStructure.EXTI_Line=KEY2_EXITLINE;
+  /* 外部中断模式 */
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
+  /* 下降沿触发方式 */
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  /* 使能中断 */
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  /* 根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存器 */
+  EXTI_Init(&EXTI_InitStructure);
+  
+  /* 选择中断优先级配置组为4个抢占式优先级和4个子优先级，可以参考misc.h文件了解相关设置 */
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+  
+  /* 使能KEY2所在的外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannel = KEY2_IRQCHANNEL;
+  /* 设置抢占式优先级为1 */
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01; 
+  /* 设置子优先级为1 */
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  /* 使能外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
+  /* 初始化配置嵌套向量中断控制器 */
+  NVIC_Init(&NVIC_InitStructure); 
+}
+
+
+
+/**
+  * 函数功能: 配置KEY3作为中断引脚并使能中断
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：
+  */
+void KEY3_EXIT_Config(void)
+{
+  /* 定义IO硬件初始化结构体变量 */
+  GPIO_InitTypeDef GPIO_InitStructure;
+  /* 定义外部中断线初始化结构体变量 */
+  EXTI_InitTypeDef EXTI_InitStructure;
+  /* 定义嵌套向量中断控制器初始化结构体变量 */
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* 为启用IO引脚中断功能需要使能复用功能时钟 */
+  KEY3_RCC_CLOCKCMD(KEY3_RCC_CLOCKGPIO | KEY3_RCC_CLOCKAFIO,ENABLE);
+  
+  /* 设定KEY3对应引脚IO编号 */
+  GPIO_InitStructure.GPIO_Pin = KEY3_GPIO_PIN;  
+  /* 设定KEY3对应引脚IO最大操作速度 ：GPIO_Speed_50MHz */
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
+  /* 设定KEY3对应引脚IO为浮空输入模式 */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;  
+  /* 初始化KEY3对应引脚IO */
+  GPIO_Init(KEY3_GPIO, &GPIO_InitStructure);
+
+  /* 选择KEY3作为中断输入源 */
+  GPIO_EXTILineConfig(KEY3_GPIO_PORTSOURCE,KEY3_GPIO_PINSOURCE);
+  
+  /* KEY3对应的中断线 */
+  EXTI_InitStructure.EXTI_Line=KEY3_EXITLINE;
+  /* 外部中断模式 */
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
+  /* 下降沿触发方式 */
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  /* 使能中断 */
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  /* 根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存器 */
+  EXTI_Init(&EXTI_InitStructure);
+  
+  /* 选择中断优先级配置组为4个抢占式优先级和4个子优先级，可以参考misc.h文件了解相关设置 */
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+  
+  /* 使能KEY3所在的外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannel = KEY3_IRQCHANNEL;
+  /* 设置抢占式优先级为1 */
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01; 
+  /* 设置子优先级为1 */
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  /* 使能外部中断通道 */
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
+  /* 初始化配置嵌套向量中断控制器 */
+  NVIC_Init(&NVIC_InitStructure); 
+}
+/**
+  * 函数功能: 板载按键IO引脚初始化.
+  * 输入参数: 无
+  * 返 回 值: 无
+  * 说    明：使用宏定义方法代替具体引脚号，方便程序移植，只要简单修改bsp_key.h
+  *           文件相关宏定义就可以方便修改引脚。
+  */
+void KEY_GPIO_Init(void)
+{
+    KEY1_EXIT_Config();
+	KEY2_EXIT_Config();
+	KEY3_EXIT_Config();
+}
+
+
+
+/**
+  * 函数功能: KEY1中断服务函数
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：在stm32f103检测到下降沿信号后会自动进入对应的中断服务函数，我们可以在
+  *           服务函数内实现一些处理。
+  */
+void KEY1_IRQHANDLER(void)
+{
+  /* 确保是否产生了EXTI Line中断 */
+	if(EXTI_GetITStatus(KEY1_EXITLINE) != RESET)
+	{
+		/*do something*/	
+		lcd_menu_choice_up()  ;
+    /* 清除中断标志位	*/
+		EXTI_ClearITPendingBit(KEY1_EXITLINE);     
+	}
+}
+
+/**
+  * 函数功能: KEY2中断服务函数
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：在stm32f103检测到下降沿信号后会自动进入对应的中断服务函数，我们可以在
+  *           服务函数内实现一些处理。
+  */
+void KEY3_IRQHANDLER(void)
+{
+  /* 确保是否产生了EXTI Line中断 */
+	if(EXTI_GetITStatus(KEY3_EXITLINE) != RESET)
+	{
+	/*do something*/
+	lcd_menu_choice_down();
+    /* 清除中断标志位	*/
+		EXTI_ClearITPendingBit(KEY3_EXITLINE);     
+	}
+}
+
+/**
+  * 函数功能: KEY2中断服务函数
+  * 输入参数：无
+  * 返 回 值: 无
+  * 说    明：在stm32f103检测到下降沿信号后会自动进入对应的中断服务函数，我们可以在
+  *           服务函数内实现一些处理。
+  */
+void KEY2_IRQHANDLER(void)
+{
+  /* 确保是否产生了EXTI Line中断 */
+	if(EXTI_GetITStatus(KEY2_EXITLINE) != RESET)
+	{
+    /*do something*/
+	lcd_menu_choice_confirm();	
+    /* 清除中断标志位	*/
+		EXTI_ClearITPendingBit(KEY2_EXITLINE);     
+	}
+}
+/*****END OF FILE****/
