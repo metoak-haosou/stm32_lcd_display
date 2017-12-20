@@ -91,11 +91,14 @@ void send_fram(void *head,void * data)
   	for(i=0;i<length;i++)
 		send_2_byte(*((u16 *)data+i));
 }
-int i=320*220;
+int i=320*240;
+int offset = 0;
+u16 x,y,v,h;
+u32 length;
 void SPI1_IRQHandler(void)
 {
-
-
+	
+#ifdef  NO
 /***************************************用于接收来自spi的图像或者其他数据***********************************************/	
 /* 	 
 *	整个接收过程分为三步，用状态位来作区别，默认状态为SEARCH
@@ -131,11 +134,33 @@ void SPI1_IRQHandler(void)
 		/* 根据不同的帧类型定制不同处理方法 */
 		switch(frame_type){
 		case FRAME_TYPE_IMAGE:
-			if(frame_data_get_offset < 0){
+			switch(frame_data_get_offset){
+			case 0:
+				//接收的第一个数据用于更新x坐标
+				frame_image_x = get_2_byte();
+				break;
+			case 2:
+				//接收的第二个数据用于更新y坐标
+				frame_image_y = get_2_byte();
+				break;
+			case 4:
+				//接收的第三个数据用于更新宽度
+				frame_image_v = get_2_byte();
+				break;
+			case 6:
+				//接收的第四个数据用于更新高度
+				frame_image_h = get_2_byte();
+				//根据接收到的起始点坐标和宽度和高度设置显示区域
 				lcd_set_area_to_display(frame_image_x,frame_image_x+frame_image_v,frame_image_y,frame_image_y+frame_image_h);
-			}else if()
-			lcd_WriteData(SPI_I2S_ReceiveData(SPI1));			
-			frame_data_get_offset++;
+				break;
+			default:
+				/* 接收的第五个以及到第frame_data_length个都用作数据 */
+				lcd_WriteData(SPI_I2S_ReceiveData(SPI1));
+				break;
+			}
+			frame_data_get_offset += 2;
+			if(frame_data_get_offset>=frame_data_length)//
+				spi_status = SEARCH;//所有数据都接收完成了，将状态位设置为SEARCH，寻找下一帧
 			break;
 		case FRAME_TYPE_STATUS:
 			//保留后用
@@ -154,7 +179,6 @@ void SPI1_IRQHandler(void)
 		break;
 	}
 
-#ifdef  NO
 /***************************************用于测试spi的流通性***********************************************/	
 	i++;
 	if(i%100000==0){
@@ -168,11 +192,20 @@ void SPI1_IRQHandler(void)
 
 /***************************************用于测试spi接收显示图像***********************************************/
 	if(!i--){
-		lcd_set_area_to_display(IMAGE_X_START,IMAGE_X_END,IMAGE_Y_START,IMAGE_Y_END);
-		i=320*220;
+		lcd_set_area_to_display(X_START,X_END,Y_START,Y_END);
+		LED1_TOGGLE;
+		i=320*240;
 	}
 	lcd_WriteData(SPI_I2S_ReceiveData(SPI1));
 #endif
+/***************************************用于测试spi接收显示图像***********************************************/
+		if(offset == 0)
+			lcd_set_area_to_display(0,128,0,128);
+		lcd_WriteData(SPI_I2S_ReceiveData(SPI1));
+		offset++;
+		if(offset >= 128*128)
+			offset = 0;
+	}
 }
 
 

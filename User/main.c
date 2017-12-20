@@ -43,73 +43,7 @@ int main(void)
 	lcd_display_menu(CMD_EXIT);
   /* ÎÞÏÞÑ­»· */
   while (1){	 
-#if 0
-		static u8 flag = 0;
-		static u16 color = 0;
-		key1 = KEY1_INPUT_LEVEL;
-		key2 = KEY2_INPUT_LEVEL;
-		key3 = KEY3_INPUT_LEVEL;
-	    if(key1 == 0){
-			color -= 0x01070e;
-			flag = 1;
-		}
-		if(key2 == 0){
-            color = 0;
-			flag = 1;
-		}
-		if(key3 == 0){
-			color += 0x01070e;
-			flag = 1;
-		}
-		
-		if(flag == 1){
-			flag = 0;
-//			lcd_flush_scream();
-			lcd_draw_box(IMAGE_X_START,IMAGE_X_END,IMAGE_Y_START,IMAGE_Y_END,color);
-//			lcd_display_allchar();
-//			delay_ms(1000);
-//			lcd_display_allword();
-		}
-	  
-#endif	  
-#if 0
-	  
-		if(SPI_get_data_status() ==DATA_VALID){
-			data_receive = SPI_receive_half_word();
-			delay_ms(100);
-			SPI_send_half_word(data_receive);
-			
-			LED1_TOGGLE;
-		}
-		i++;
-		if(i%100000 == 0){
-			LED2_TOGGLE
-		}
-	
-#endif
-		
-#if 0 
-		key1 = KEY1_INPUT_LEVEL;
-		key2 = KEY2_INPUT_LEVEL;
-		key3 = KEY3_INPUT_LEVEL;
-		if(key1 == 0){
-			LED1_ON;
-		}else{
-			LED1_OFF;
-		}
-		if(key2 == 0){
-			LED2_ON;
-		}else{
-			LED2_OFF;
-		}
-		if(key3 == 0){
-			LED1_ON;
-			LED2_ON;
-		}else{
-			LED1_OFF;
-			LED2_OFF;
-		}
-#endif
+
 	}
 }
 
