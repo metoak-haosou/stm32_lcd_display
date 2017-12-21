@@ -43,7 +43,7 @@ void lcd_put_char(u16 x,u16 y,u16 background,u16 word_color,u8 num);//在指定位置
 void lcd_put_word(u16 x,u16 y,u16 background,u16 word_color,u8 num);//在指定位置显示一个汉字
 void lcd_display_allchar(void);//显示所有字符
 void lcd_display_allword(void);//显示所有汉字
-void lcd_display_menu(u16 choice);//显示munu，以供用户选择
+void lcd_display_cmd(void);//显示munu，以供用户选择
 void lcd_menu_choice_down(void);//显示框向下移动
 void lcd_menu_choice_up(void);//显示框向上移动
 void lcd_menu_choice_confirm(void);//确认当前选项，并更新命令
@@ -51,6 +51,7 @@ void lcd_WriteComm(u16 CMD);
 void lcd_WriteData(u16 tem_data);
 void lcd_WR_Start(void);
 void lcd_set_area_to_display(u16 x_start,u16 x_end,u16 y_start,u16 y_end);
+void send_cmd(void);
 
 #define X_START 	(0) 
 #define X_END   	(319)
@@ -59,7 +60,7 @@ void lcd_set_area_to_display(u16 x_start,u16 x_end,u16 y_start,u16 y_end);
 
 #define IMAGE_X_START 	X_START 
 #define IMAGE_X_END   	X_END
-#define IMAGE_Y_START 	(20)
+#define IMAGE_Y_START 	Y_START
 #define IMAGE_Y_END		Y_END
 
 #define TOOLBAR_X_START 	X_START 
@@ -88,6 +89,8 @@ void lcd_set_area_to_display(u16 x_start,u16 x_end,u16 y_start,u16 y_end);
 #define CMD_LED4 4
 #define CMD_EXIT 5
 
+#define CMD_IS_READY 1
+#define CMD_IS_NOT_READY 2
 
 #define MAX_MENU_STRING 5
 #endif

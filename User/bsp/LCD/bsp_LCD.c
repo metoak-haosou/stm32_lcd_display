@@ -10,6 +10,7 @@
 #include "stm32f10x.h"
 #include "bsp/LCD/bsp_LCD.h"
 #include "bsp/led/bsp_led.h"
+#include "bsp/spi/bsp_spi.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -100,20 +101,21 @@ u8 s3[] = {37,30,29,55};
 u8 s4[] = {37,30,29,56};
 u8 s5[] = {30,49,34,45};
 /*所有命令字符串的集合*/
-u8 *allmenu1[MAX_MENU_STRING] = {s1,s2,s3,s4,s5};
+u8 *allmenu[MAX_MENU_STRING] = {s1,s2,s3,s4,s5};
 u8 cur_menu1_num = 5;
 
-//标识当前被选择的命令，只有按下了确认当前命令才会执行
-u16 cmd = CMD_NONE;
 //所有命令的集合
-u16 allcmd[] = {CMD_NONE,CMD_LED1,CMD_LED2,CMD_LED3,CMD_LED4,CMD_EXIT};
+u16 allcmd[] = {CMD_LED1,CMD_LED2,CMD_LED3,CMD_LED4,CMD_EXIT};
 u8 cur_cmd_num = 5;
 u16 cmd_pointer = 0;
+
+u8 cmd_status = CMD_IS_NOT_READY;
 /*********************************************二级菜单**************************************************/
 //待补充
 
 /*********************************************图像显示**************************************************/
 u8 lcd_display_image_status = 0;
+
 
 /*配置LCD的gpio*/
  static void LCD_GPIO_Config(void)
@@ -394,7 +396,7 @@ void lcd_init(void)
 
 	lcd_WriteComm(0x16);   // Set BGR 
 	lcd_WriteData(0x50);
-	lcd_flush_toolbar();
+//	lcd_flush_toolbar();
 	lcd_draw_box(IMAGE_X_START,IMAGE_X_END,IMAGE_Y_START,IMAGE_Y_END,INIT_COLOR);
 }
 /*块选择函数*/
@@ -510,41 +512,30 @@ void lcd_display_char_string(u16 x,u16 y,u16 background,u16 color,u8 *str,u8 num
 	
 }
 //显示munu，以供用户选择
-void lcd_display_menu(u16 choice)
+void lcd_display_cmd()
 {	
-	u16 x=2,y=2;
-	int i;
-	u16 size;
-	lcd_flush_toolbar();
-	for(i=0;i<cur_menu1_num;i++){
-		size = sizeof(allmenu1[i])/sizeof(allmenu1[i][0]);
-		lcd_display_char_string(x,y,choice == allcmd[i+1]?CHOOSE_COLOR:TOOLBAR_COLOR,0x0000,allmenu1[i],size);
-		x += size*8+8;
-	}
+	lcd_display_char_string(2,2,CHOOSE_COLOR,0x0000,allmenu[cmd_pointer],
+	sizeof(allmenu[cmd_pointer])/sizeof(allmenu[cmd_pointer][0]));
 }
-void *p;
 //显示框向下移动
 void lcd_menu_choice_down(void)
 {
-	p = malloc(100);
 	cmd_pointer++;
-	cmd_pointer %=(CMD_EXIT+1);
-	cmd = allcmd[cmd_pointer];
-	lcd_display_menu(cmd);
+	if(cur_cmd_num == cmd_pointer)
+		cmd_pointer = 0;
 }
 //显示框向上移动
 void lcd_menu_choice_up(void)
 {
-	free(p);
-	cmd_pointer = cmd_pointer+CMD_EXIT;
-	cmd_pointer %=(CMD_EXIT+1);
-	cmd = allcmd[cmd_pointer];
-	lcd_display_menu(cmd);
+	if(0 == cmd_pointer)
+		cmd_pointer = cur_cmd_num;
+	cmd_pointer --;
 }	
 //确认当前选项，并更新命令,该函数应该担当起发送命令给上位机的作用
 void lcd_menu_choice_confirm(void)
 {
-	switch(cmd){
+	cmd_status = CMD_IS_READY;
+	switch(allcmd[cmd_pointer]){
 		case CMD_LED1:
 			LED1_TOGGLE;
 			break;
@@ -565,11 +556,10 @@ void lcd_menu_choice_confirm(void)
 			break;			
 	};
 }
-void lcd_prepare_to_display_line(u16 x,u16 y,u16 offset,u16 *data)
+
+void  send_cmd(void)
 {
-	
+	if(CMD_IS_READY == cmd_status)
+		send_fram(NULL,NULL);
 }
-	
-
-
 

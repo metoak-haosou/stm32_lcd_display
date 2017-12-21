@@ -92,9 +92,6 @@ void send_fram(void *head,void * data)
 		send_2_byte(*((u16 *)data+i));
 }
 int i=320*240;
-int offset = 0;
-u16 x,y,v,h;
-u32 length;
 void SPI1_IRQHandler(void)
 {
 	
@@ -159,8 +156,10 @@ void SPI1_IRQHandler(void)
 				break;
 			}
 			frame_data_get_offset += 2;
-			if(frame_data_get_offset>=frame_data_length)//
+			if(frame_data_get_offset>=frame_data_length){
+				lcd_display_cmd();
 				spi_status = SEARCH;//所有数据都接收完成了，将状态位设置为SEARCH，寻找下一帧
+			}
 			break;
 		case FRAME_TYPE_STATUS:
 			//保留后用
@@ -178,18 +177,6 @@ void SPI1_IRQHandler(void)
 		spi_status = SEARCH;
 		break;
 	}
-
-/***************************************用于测试spi的流通性***********************************************/	
-	i++;
-	if(i%100000==0){
-		LED1_TOGGLE;
-	
-	}
-	SPI_I2S_SendData(SPI1,SPI_I2S_ReceiveData(SPI1));
-	if(i%167000==0){
-		LED2_TOGGLE;
-	}
-
 #endif
 /***************************************用于测试spi接收显示图像***********************************************/
 	if(!i--){
@@ -198,13 +185,6 @@ void SPI1_IRQHandler(void)
 		i=320*240;
 	}
 	lcd_WriteData(get_2_byte());
-/***************************************用于测试spi接收显示图像***********************************************/
-		// if(offset == 0)
-			// lcd_set_area_to_display(0,128,0,128);
-		// lcd_WriteData(get_2_byte());
-		// offset++;
-		// if(offset >= 128*128)
-			// offset = 0;
 }
 
 

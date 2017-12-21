@@ -30,5 +30,6 @@
 .\objects\bsp_lcd.o: ..\..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
 .\objects\bsp_lcd.o: ..\..\User\bsp/LCD/bsp_LCD.h
 .\objects\bsp_lcd.o: ..\..\User\bsp/led/bsp_led.h
+.\objects\bsp_lcd.o: ..\..\User\bsp/spi/bsp_spi.h
 .\objects\bsp_lcd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\bsp_lcd.o: E:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

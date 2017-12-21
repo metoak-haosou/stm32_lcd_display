@@ -3,6 +3,7 @@
 /* 包含头文件 ----------------------------------------------------------------*/
 #include "bsp/key/bsp_key.h"
 #include "bsp/LCD/bsp_LCD.h"
+#include "bsp/led/bsp_led.h"
 
 
 
@@ -70,9 +71,9 @@ void KEY1_EXIT_Config(void)
   /* 使能KEY1所在的外部中断通道 */
   NVIC_InitStructure.NVIC_IRQChannel = KEY1_IRQCHANNEL;
   /* 设置抢占式优先级为2 */
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02; 
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01; 
   /* 设置子优先级为3 */
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
   /* 使能外部中断通道 */
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
   /* 初始化配置嵌套向量中断控制器 */
@@ -224,7 +225,7 @@ void KEY1_IRQHANDLER(void)
   /* 确保是否产生了EXTI Line中断 */
 	if(EXTI_GetITStatus(KEY1_EXITLINE) != RESET)
 	{
-		/*do something*/	
+		/*do something*/
 		lcd_menu_choice_up()  ;
     /* 清除中断标志位	*/
 		EXTI_ClearITPendingBit(KEY1_EXITLINE);     

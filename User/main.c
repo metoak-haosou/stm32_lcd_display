@@ -6,14 +6,13 @@
 #include "bsp/LCD/bsp_LCD.h"
 
 
+
 /**
   * 函数功能: 主函数.
   * 输入参数: 无
   * 返 回 值: 无
   * 说    明: 无
   */
-  
-
 
  void delay_ms(u16 tm)
  {
@@ -35,15 +34,17 @@ int main(void)
 	/*初始化LCD*/
 	lcd_init();
 	/*初始化spi*/
-	SPI_init();
+	//SPI_init();
 	
 	LED1_OFF;
 	LED2_OFF;
 
-	lcd_display_menu(CMD_EXIT);
+	lcd_display_cmd();
   /* 无限循环 */
-  while (1){	 
-
+	//整个系统的调度任务
+	while (1){	 
+      //检查当前是否有需要向主机发送的命令，如果有就生成包，然后发送
+	  send_cmd();
 	}
 }
 

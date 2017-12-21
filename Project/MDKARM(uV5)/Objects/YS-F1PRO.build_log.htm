@@ -27,20 +27,25 @@ Project File Date:  12/08/2017
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 4 (build 422)', folder: 'E:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'YS-F1PRO'
+compiling main.c...
+..\..\User\main.c(47): warning:  #223-D: function "lcd_send_cmd" declared implicitly
+  	  lcd_send_cmd();
+..\..\User\main.c: 1 warning, 0 errors
+compiling bsp_key.c...
 compiling bsp_spi.c...
+compiling bsp_LCD.c...
 linking...
-Program Size: Code=5288 RO-data=336 RW-data=1932 ZI-data=24676  
-FromELF: creating hex file...
-After Build - User command #1: CopyHex_Flash.bat
-D:\trash\stm32_button_of_int_v4_lcd_menu_spi\Project\MDKARM(uV5)>copy Objects\YS-F1PRO.hex YS-F1PRO.hex 
-已复制         1 个文件。
-".\Objects\YS-F1PRO.axf" - 0 Error(s), 0 Warning(s).
+.\Objects\YS-F1PRO.axf: Error: L6218E: Undefined symbol lcd_send_cmd (referred from main.o).
+Not enough information to list image symbols.
+Finished: 1 information, 0 warning and 1 error messages.
+".\Objects\YS-F1PRO.axf" - 1 Error(s), 1 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_YS-F1PRO
   E:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
+Target not created.
 Build Time Elapsed:  00:00:01
 </pre>
 </body>

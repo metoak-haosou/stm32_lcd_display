@@ -30,3 +30,4 @@
 .\objects\bsp_key.o: ..\..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\bsp_key.o: ..\..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
 .\objects\bsp_key.o: ..\..\User\bsp/LCD/bsp_LCD.h
+.\objects\bsp_key.o: ..\..\User\bsp/led/bsp_led.h
